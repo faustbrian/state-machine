@@ -1,0 +1,35 @@
+{
+    "name": "cline/state-machine",
+    "autoload": {
+        "psr-4": {
+            "Cline\\StateMachine\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Cline\\StateMachine\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Brian Faust",
+            "email": "brian@cline.sh"
+        }
+    ],
+    "require-dev": {
+        "cline/php-cs-fixer": "^1.0",
+        "orchestra/testbench": "^10.0",
+        "mockery/mockery": "^1.6"
+    },
+    "require": {
+        "illuminate/database": "^12.28",
+        "illuminate/contracts": "^12.28",
+        "illuminate/support": "^12.28",
+        "pestphp/pest": "^4.1"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}
