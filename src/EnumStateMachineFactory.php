@@ -52,26 +52,28 @@ final readonly class EnumStateMachineFactory
 
     public function forEnum(Model $model, string $enumClass): EnumStateMachine
     {
-        $attribute = self::resolveAttributeForEnum($model, $enumClass);
+        $attribute = $this->resolveAttributeForEnum($model, $enumClass);
 
         return $this->forAttribute($model, $attribute);
     }
 
     public function autoDetect(Model $model): EnumStateMachine
     {
-        $attribute = self::autoDetectEnumAttribute($model);
+        $attribute = $this->autoDetectEnumAttribute($model);
 
         return $this->forAttribute($model, $attribute);
     }
 
-    private static function autoDetectEnumAttribute(Model $model): string
+    private function autoDetectEnumAttribute(Model $model): string
     {
         $enumAttrs = [];
 
         foreach ($model->getCasts() as $attr => $cast) {
-            if (is_string($cast) && enum_exists($cast)) {
-                $enumAttrs[] = $attr;
+            if (!is_string($cast) || !enum_exists($cast)) {
+                continue;
             }
+
+            $enumAttrs[] = $attr;
         }
 
         if (count($enumAttrs) === 1) {
@@ -81,7 +83,7 @@ final readonly class EnumStateMachineFactory
         throw new InvalidArgumentException('Unable to auto-detect enum attribute; please specify explicitly');
     }
 
-    private static function resolveAttributeForEnum(Model $model, string $enumClass): string
+    private function resolveAttributeForEnum(Model $model, string $enumClass): string
     {
         foreach ($model->getCasts() as $attr => $cast) {
             if ($cast === $enumClass) {
@@ -89,6 +91,6 @@ final readonly class EnumStateMachineFactory
             }
         }
 
-        throw new InvalidArgumentException("No attribute cast found for enum {$enumClass}");
+        throw new InvalidArgumentException('No attribute cast found for enum '.$enumClass);
     }
 }

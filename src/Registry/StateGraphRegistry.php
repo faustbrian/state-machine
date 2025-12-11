@@ -31,18 +31,16 @@ final class StateGraphRegistry
     /** @var array<class-string, StateGraph> */
     private array $cache = [];
 
-    public function __construct() {}
-
     public function resolve(string $enumClass): StateGraph
     {
         if (array_key_exists($enumClass, $this->cache)) {
             return $this->cache[$enumClass];
         }
 
-        $compiled = self::loadCompiled();
+        $compiled = $this->loadCompiled();
 
         if (array_key_exists($enumClass, $compiled)) {
-            return $this->cache[$enumClass] = self::rehydrate($enumClass, $compiled[$enumClass]);
+            return $this->cache[$enumClass] = $this->rehydrate($enumClass, $compiled[$enumClass]);
         }
 
         // Discover attributed map class on-demand (dev) when cache miss
@@ -112,7 +110,7 @@ final class StateGraphRegistry
     /**
      * @param array{rules: array<string, array<string, null|string>>, ignore: bool, middleware: list<class-string>} $data
      */
-    private static function rehydrate(string $enumClass, array $data): StateGraph
+    private function rehydrate(string $enumClass, array $data): StateGraph
     {
         $named = $data['named'] ?? [];
 
@@ -122,7 +120,7 @@ final class StateGraphRegistry
     /**
      * @return array<class-string, array{rules: array<string, array<string, null|string>>, ignore: bool, middleware: list<class-string>}>
      */
-    private static function loadCompiled(): array
+    private function loadCompiled(): array
     {
         $path = (string) config('discovery.paths.state_machines');
 

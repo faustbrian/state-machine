@@ -177,8 +177,8 @@ final class StateGraphBuilder
 
     private function assertEnumCase(object $case): void
     {
-        throw_unless($case instanceof BackedEnum, new InvalidArgumentException('Expected enum case instance'));
+        throw_unless($case instanceof BackedEnum, InvalidArgumentException::class, 'Expected enum case instance');
 
-        throw_unless(is_a($case, $this->enumClass), new InvalidArgumentException("Enum case does not belong to {$this->enumClass}"));
+        throw_unless(is_a($case, $this->enumClass), InvalidArgumentException::class, 'Enum case does not belong to '.$this->enumClass);
     }
 }

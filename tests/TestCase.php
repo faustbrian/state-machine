@@ -13,6 +13,7 @@ use Cline\StateMachine\Providers\StateMachineServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 /**
+ * @author Brian Faust <brian@cline.sh>
  * @internal
  */
 abstract class TestCase extends OrchestraTestCase

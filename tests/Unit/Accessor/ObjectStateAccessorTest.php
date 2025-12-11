@@ -74,7 +74,7 @@ test('throws exception for non-existent property', function (): void {
     $object = new stdClass();
     $accessor = new ObjectStateAccessor();
 
-    expect(fn () => $accessor->get($object, 'nonexistent'))
+    expect(fn (): object => $accessor->get($object, 'nonexistent'))
         ->toThrow(InvalidArgumentException::class);
 });
 

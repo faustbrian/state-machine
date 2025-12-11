@@ -31,8 +31,6 @@ use function str_starts_with;
  */
 final readonly class StateGraphDiscoverer
 {
-    public function __construct() {}
-
     /**
      * Discover enums annotated with #[UseStateGraph(Graph::class)].
      *
@@ -54,7 +52,7 @@ final readonly class StateGraphDiscoverer
         $results = [];
 
         foreach ($classmap as $class => $file) {
-            if (!self::pathIncluded($file, $paths)) {
+            if (!$this->pathIncluded($file, $paths)) {
                 continue;
             }
 
@@ -98,7 +96,7 @@ final readonly class StateGraphDiscoverer
     /**
      * @param list<string> $paths
      */
-    private static function pathIncluded(string $file, array $paths): bool
+    private function pathIncluded(string $file, array $paths): bool
     {
         $file = str_replace('\\', '/', $file);
 

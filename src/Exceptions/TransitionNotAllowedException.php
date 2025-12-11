@@ -11,6 +11,8 @@ namespace Cline\StateMachine\Exceptions;
 
 use RuntimeException;
 
+use function sprintf;
+
 /**
  * @author Brian Faust <brian@cline.sh>
  *
@@ -20,6 +22,6 @@ final class TransitionNotAllowedException extends RuntimeException
 {
     public static function between(string $enumClass, string $from, string $to): self
     {
-        return new self("Transition not allowed for {$enumClass} from {$from} to {$to}");
+        return new self(sprintf('Transition not allowed for %s from %s to %s', $enumClass, $from, $to));
     }
 }

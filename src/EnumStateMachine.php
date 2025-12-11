@@ -28,10 +28,13 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Foundation\Application;
 use InvalidArgumentException;
 use ReflectionEnum;
+use ReflectionEnumUnitCase;
 use Throwable;
+use UnitEnum;
 
 use function array_reverse;
 use function in_array;
+use function sprintf;
 use function throw_if;
 use function throw_unless;
 
@@ -102,7 +105,7 @@ final readonly class EnumStateMachine implements BoundStateMachineInterface
             return false;
         }
 
-        $to = self::enumCaseByName($from::class, (string) $named['to']);
+        $to = $this->enumCaseByName($from::class, (string) $named['to']);
         $can = new StateTransitionCan($this->subject, $this->attribute, $from, $to, $name->value, $named['properties'], $context);
         $this->events->dispatch($can);
 
@@ -125,7 +128,7 @@ final readonly class EnumStateMachine implements BoundStateMachineInterface
 
         throw_unless(in_array($from->name, $named['from'], true), TransitionNotAllowedException::between(enumClass: $enumClass, from: $from->name, to: $named['to']));
 
-        $to = self::enumCaseByName($enumClass, (string) $named['to']);
+        $to = $this->enumCaseByName($enumClass, (string) $named['to']);
 
         // Guard stage (named)
         $can = new StateTransitionCan($this->subject, $this->attribute, $from, $to, $name->value, $named['properties'], $context);
@@ -146,18 +149,18 @@ final readonly class EnumStateMachine implements BoundStateMachineInterface
             $this->runPipeline($transition, $map, function (Transition $t) use ($persist): void {
                 $this->applyCore($t, $persist);
             });
-        } catch (Throwable $e) {
+        } catch (Throwable $throwable) {
             $this->events->dispatch(
                 new StateTransitionFailed(
                     subject: $this->subject,
                     attribute: $this->attribute,
                     from: $from,
                     to: $to,
-                    exception: $e,
+                    exception: $throwable,
                 ),
             );
 
-            throw $e;
+            throw $throwable;
         }
 
         $this->events->dispatch(
@@ -202,26 +205,27 @@ final readonly class EnumStateMachine implements BoundStateMachineInterface
                 continue;
             }
 
-            $to = self::enumCaseByName($enumClass, (string) $spec['to']);
+            $to = $this->enumCaseByName($enumClass, (string) $spec['to']);
             $can = new StateTransitionCan($this->subject, $this->attribute, $from, $to, $name, $spec['properties'], $context);
             $this->events->dispatch($can);
 
-            if (!$can->isBlocked()) {
-                $names[] = $name;
+            if ($can->isBlocked()) {
+                continue;
             }
+
+            $names[] = $name;
         }
 
         return $names;
     }
 
-    private static function enumCaseByName(string $enumClass, string $name): object
+    private function enumCaseByName(string $enumClass, string $name): UnitEnum
     {
         $ref = new ReflectionEnum($enumClass);
         $case = $ref->getCase($name);
 
-        throw_if($case === null, new InvalidArgumentException("No enum case {$name} for {$enumClass}"));
+        throw_if(!$case instanceof ReflectionEnumUnitCase, InvalidArgumentException::class, sprintf('No enum case %s for %s', $name, $enumClass));
 
-        /** @var object $value */
         return $case->getValue();
     }
 
@@ -233,9 +237,11 @@ final readonly class EnumStateMachine implements BoundStateMachineInterface
         );
         $this->accessor->set($this->subject, $this->attribute, $transition->to);
 
-        if ($persist) {
-            $this->accessor->persist($this->subject);
+        if (!$persist) {
+            return;
         }
+
+        $this->accessor->persist($this->subject);
     }
 
     private function runPipeline(Transition $transition, StateGraph $map, callable $destination): void

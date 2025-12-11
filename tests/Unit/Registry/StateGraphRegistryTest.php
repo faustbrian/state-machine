@@ -9,10 +9,7 @@
 
 use Cline\StateMachine\Registry\StateGraphRegistry;
 use Cline\StateMachine\StateGraph;
-use Cline\StateMachine\Tests\Fixtures\OrderStateGraph;
 use Cline\StateMachine\Tests\Fixtures\OrderStatus;
-
-
 
 test('can resolve state graph for enum', function (): void {
     $registry = new StateGraphRegistry();

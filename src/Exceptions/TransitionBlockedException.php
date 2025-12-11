@@ -11,6 +11,8 @@ namespace Cline\StateMachine\Exceptions;
 
 use RuntimeException;
 
+use function sprintf;
+
 /**
  * @author Brian Faust <brian@cline.sh>
  *
@@ -20,10 +22,10 @@ final class TransitionBlockedException extends RuntimeException
 {
     public static function named(string $enumClass, string $name, ?string $reason = null): self
     {
-        $msg = "Transition '{$name}' was blocked for {$enumClass}";
+        $msg = sprintf("Transition '%s' was blocked for %s", $name, $enumClass);
 
         if ($reason) {
-            $msg .= ": {$reason}";
+            $msg .= ': '.$reason;
         }
 
         return new self($msg);

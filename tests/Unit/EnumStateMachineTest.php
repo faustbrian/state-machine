@@ -11,6 +11,7 @@ use Cline\StateMachine\Accessor\ObjectStateAccessor;
 use Cline\StateMachine\EnumStateMachine;
 use Cline\StateMachine\Registry\StateGraphRegistry;
 use Cline\StateMachine\Tests\Fixtures\OrderStatus;
+use Illuminate\Contracts\Events\Dispatcher;
 
 test('can get current state', function (): void {
     $subject = new class()
@@ -21,7 +22,7 @@ test('can get current state', function (): void {
     $stateMachine = new EnumStateMachine(
         subject: $subject,
         attribute: 'status',
-        events: app('events'),
+        events: resolve(Dispatcher::class),
         maps: new StateGraphRegistry(),
         application: app(),
         accessor: new ObjectStateAccessor(),
@@ -39,7 +40,7 @@ test('can get enum class', function (): void {
     $stateMachine = new EnumStateMachine(
         subject: $subject,
         attribute: 'status',
-        events: app('events'),
+        events: resolve(Dispatcher::class),
         maps: new StateGraphRegistry(),
         application: app(),
         accessor: new ObjectStateAccessor(),
@@ -59,7 +60,7 @@ test('can create new instance with different attribute', function (): void {
     $stateMachine = new EnumStateMachine(
         subject: $subject,
         attribute: 'status',
-        events: app('events'),
+        events: resolve(Dispatcher::class),
         maps: new StateGraphRegistry(),
         application: app(),
         accessor: new ObjectStateAccessor(),
@@ -80,7 +81,7 @@ test('using same attribute returns same instance', function (): void {
     $stateMachine = new EnumStateMachine(
         subject: $subject,
         attribute: 'status',
-        events: app('events'),
+        events: resolve(Dispatcher::class),
         maps: new StateGraphRegistry(),
         application: app(),
         accessor: new ObjectStateAccessor(),
@@ -100,13 +101,13 @@ test('using null attribute returns same instance', function (): void {
     $stateMachine = new EnumStateMachine(
         subject: $subject,
         attribute: 'status',
-        events: app('events'),
+        events: resolve(Dispatcher::class),
         maps: new StateGraphRegistry(),
         application: app(),
         accessor: new ObjectStateAccessor(),
     );
 
-    $sameMachine = $stateMachine->using(null);
+    $sameMachine = $stateMachine->using();
 
     expect($sameMachine)->toBe($stateMachine);
 });

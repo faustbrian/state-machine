@@ -17,6 +17,7 @@ use ReflectionProperty;
 
 use function method_exists;
 use function property_exists;
+use function sprintf;
 use function str_replace;
 use function ucwords;
 
@@ -30,21 +31,18 @@ final readonly class ObjectStateAccessor implements StateAccessorInterface
     public function get(object $subject, string $attribute): object
     {
         if ($subject instanceof Model) {
-            /** @var object $value */
             return $subject->getAttribute($attribute);
         }
 
         // Try public property first
         if (property_exists($subject, $attribute)) {
-            /** @var object $value */
             return $subject->{$attribute};
         }
 
         // Try getter method
-        $getter = self::accessorName('get', $attribute);
+        $getter = $this->accessorName('get', $attribute);
 
         if (method_exists($subject, $getter)) {
-            /** @var object $value */
             return $subject->{$getter}();
         }
 
@@ -53,13 +51,12 @@ final readonly class ObjectStateAccessor implements StateAccessorInterface
 
         if ($rc->hasProperty($attribute)) {
             $prop = $rc->getProperty($attribute);
-            self::ensureReadable($prop);
+            $this->ensureReadable($prop);
 
-            /** @var object $value */
             return $prop->getValue($subject);
         }
 
-        throw new InvalidArgumentException("State attribute '{$attribute}' not found on subject of type ".$subject::class);
+        throw new InvalidArgumentException(sprintf("State attribute '%s' not found on subject of type ", $attribute).$subject::class);
     }
 
     public function set(object $subject, string $attribute, object $state): void
@@ -76,7 +73,7 @@ final readonly class ObjectStateAccessor implements StateAccessorInterface
             return;
         }
 
-        $setter = self::accessorName('set', $attribute);
+        $setter = $this->accessorName('set', $attribute);
 
         if (method_exists($subject, $setter)) {
             $subject->{$setter}($state);
@@ -88,13 +85,13 @@ final readonly class ObjectStateAccessor implements StateAccessorInterface
 
         if ($rc->hasProperty($attribute)) {
             $prop = $rc->getProperty($attribute);
-            self::ensureWritable($prop);
+            $this->ensureWritable($prop);
             $prop->setValue($subject, $state);
 
             return;
         }
 
-        throw new InvalidArgumentException("Cannot set state attribute '{$attribute}' on subject of type ".$subject::class);
+        throw new InvalidArgumentException(sprintf("Cannot set state attribute '%s' on subject of type ", $attribute).$subject::class);
     }
 
     public function persist(object $subject): void
@@ -102,25 +99,26 @@ final readonly class ObjectStateAccessor implements StateAccessorInterface
         if ($subject instanceof Model) {
             $subject->save();
         }
+
         // Otherwise no-op for non-persistent subjects
     }
 
-    private static function accessorName(string $prefix, string $attribute): string
+    private function accessorName(string $prefix, string $attribute): string
     {
         return $prefix.str_replace(' ', '', ucwords(str_replace(['_', '-'], ' ', $attribute)));
     }
 
-    private static function ensureReadable(ReflectionProperty $prop): void
+    private function ensureReadable(ReflectionProperty $prop): void
     {
-        if (!$prop->isPublic()) {
-            $prop->setAccessible(true);
+        if ($prop->isPublic()) {
+            return;
         }
     }
 
-    private static function ensureWritable(ReflectionProperty $prop): void
+    private function ensureWritable(ReflectionProperty $prop): void
     {
-        if (!$prop->isPublic()) {
-            $prop->setAccessible(true);
+        if ($prop->isPublic()) {
+            return;
         }
     }
 }

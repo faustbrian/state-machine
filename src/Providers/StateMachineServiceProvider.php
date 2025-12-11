@@ -32,13 +32,15 @@ final class StateMachineServiceProvider extends ServiceProvider implements Defer
 
     public function boot(): void
     {
-        if ($this->app->runningInConsole()) {
-            $this->commands([
-                StateCacheCommand::class,
-                StateClearCommand::class,
-                StateDumpCommand::class,
-            ]);
+        if (!$this->app->runningInConsole()) {
+            return;
         }
+
+        $this->commands([
+            StateCacheCommand::class,
+            StateClearCommand::class,
+            StateDumpCommand::class,
+        ]);
     }
 
     #[Override()]

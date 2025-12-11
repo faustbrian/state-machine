@@ -9,6 +9,9 @@
 
 namespace Cline\StateMachine\Tests\Fixtures;
 
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
 enum OrderStatus: string
 {
     case Pending = 'pending';

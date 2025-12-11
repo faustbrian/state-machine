@@ -9,8 +9,6 @@
 
 use Illuminate\Testing\PendingCommand;
 
-
-
 /**
  * Copyright (C) Brian Faust
  *

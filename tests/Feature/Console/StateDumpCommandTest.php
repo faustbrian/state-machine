@@ -10,8 +10,6 @@
 use Cline\StateMachine\Tests\Fixtures\OrderStatus;
 use Illuminate\Testing\PendingCommand;
 
-
-
 test('state dump command exists and has correct signature', function (): void {
     $this->artisan('state:dump --help')
         ->assertExitCode(0);
